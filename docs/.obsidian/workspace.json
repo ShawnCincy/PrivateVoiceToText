@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Plans/ImplementationPlan.md",
+                "file": "Guides/CSharp_Developer/ProcessFlow.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ImplementationPlan"
+              "title": "ProcessFlow"
             }
           }
         ]
@@ -182,6 +182,7 @@
   },
   "active": "7006f142bb591545",
   "lastOpenFiles": [
+    "Plans/ImplementationPlan.md",
     "Guides/CSharp_Developer/Plans/ImplementationPlan.md",
     "Guides/CSharp_Developer/Plans/ImplementationPlan.md.tmp.34144.1770570479245",
     "Guides/CSharp_Developer/Plans",
@@ -191,7 +192,6 @@
     "Plans/Archive/ImplementationPlan.md",
     "Plans/Archive",
     "Guides/CSharp_Developer/info.md",
-    "Plans/ImplementationPlan.md",
     "Guides/CSharp_Developer",
     "Guides",
     "Plans"

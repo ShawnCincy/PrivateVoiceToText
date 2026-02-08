@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pvtt"
+version = "0.1.0"
+description = "Private Voice To Text - local-only, privacy-first voice-to-text CLI"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.9,<1.0",
+    "rich>=13.0",
+    "pydantic>=2.0,<3.0",
+    "faster-whisper>=1.0,<2.0",
+    "platformdirs>=4.0",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+train = [
+    "torch>=2.0",
+    "transformers>=4.36",
+    "peft>=0.7",
+    "bitsandbytes>=0.41",
+    "datasets>=2.14",
+    "jiwer>=3.0",
+]
+lm = [
+    "kenlm",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+pvtt = "pvtt.cli.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pvtt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+    "gpu: marks tests requiring GPU",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
+ignore = [
+    "B008",    # Typer uses function calls in default args by design
+    "UP007",   # Typer requires Optional[] not X | None for older Python compat
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/pvtt/cli/*" = ["UP045"]  # Typer requires Optional[] syntax
+"tests/*" = ["E501"]          # Allow slightly longer lines in tests
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
