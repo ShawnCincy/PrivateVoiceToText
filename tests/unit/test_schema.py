@@ -20,10 +20,15 @@ class TestModelConfig:
     def test_defaults(self) -> None:
         config = ModelConfig()
 
-        assert config.name == "large-v3-turbo"
+        assert config.name == "auto"
         assert config.device == "auto"
         assert config.compute_type == "auto"
         assert config.local_files_only is True
+
+    def test_auto_model_name_accepted(self) -> None:
+        config = ModelConfig(name="auto")
+
+        assert config.name == "auto"
 
     def test_known_model_names_accepted(self) -> None:
         for name in ("tiny", "tiny.en", "base", "small.en", "medium", "large-v3-turbo"):
@@ -116,7 +121,7 @@ class TestPvttConfig:
     def test_defaults(self) -> None:
         config = PvttConfig()
 
-        assert config.model.name == "large-v3-turbo"
+        assert config.model.name == "auto"
         assert config.transcription.beam_size == 5
         assert config.output.format == "text"
         assert config.logging.verbosity == 0
@@ -140,5 +145,5 @@ class TestPvttConfig:
     def test_empty_dict_produces_defaults(self) -> None:
         config = PvttConfig.model_validate({})
 
-        assert config.model.name == "large-v3-turbo"
+        assert config.model.name == "auto"
         assert config.model.local_files_only is True

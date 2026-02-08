@@ -104,7 +104,7 @@ class TestLoadConfig:
     def test_no_file_returns_defaults(self, tmp_path: Path) -> None:
         config = load_config(config_path=tmp_path / "nonexistent.toml")
 
-        assert config.model.name == "large-v3-turbo"
+        assert config.model.name == "auto"
         assert config.model.local_files_only is True
 
     def test_toml_overrides_defaults(self, tmp_path: Path) -> None:

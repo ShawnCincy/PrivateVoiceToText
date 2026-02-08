@@ -165,3 +165,69 @@ class TestModelManagerDownload:
                     "medium", "medium.en", "large-v3-turbo"}
 
         assert expected.issubset(set(MODEL_REPO_MAP.keys()))
+
+
+class TestModelManagerResolveModelName:
+    """Tests for ModelManager.resolve_model_name."""
+
+    def test_prefers_large_v3_turbo_when_installed(self, tmp_path: Path) -> None:
+        for name in ("tiny.en", "large-v3-turbo"):
+            d = tmp_path / name
+            d.mkdir()
+            (d / "model.bin").write_bytes(b"\x00")
+
+        manager = ModelManager(models_dir=tmp_path)
+        result = manager.resolve_model_name()
+
+        assert result == "large-v3-turbo"
+
+    def test_falls_back_to_first_model_when_turbo_missing(self, tmp_path: Path) -> None:
+        d = tmp_path / "tiny.en"
+        d.mkdir()
+        (d / "model.bin").write_bytes(b"\x00")
+
+        manager = ModelManager(models_dir=tmp_path)
+        result = manager.resolve_model_name()
+
+        assert result == "tiny.en"
+
+    def test_falls_back_to_first_sorted_model(self, tmp_path: Path) -> None:
+        for name in ("small.en", "base.en"):
+            d = tmp_path / name
+            d.mkdir()
+            (d / "model.bin").write_bytes(b"\x00")
+
+        manager = ModelManager(models_dir=tmp_path)
+        result = manager.resolve_model_name()
+
+        assert result == "base.en"  # alphabetically first
+
+    def test_no_models_installed_raises(self, tmp_path: Path) -> None:
+        manager = ModelManager(models_dir=tmp_path)
+
+        with pytest.raises(ModelNotFoundError, match="No models installed"):
+            manager.resolve_model_name()
+
+    def test_custom_preferred_model(self, tmp_path: Path) -> None:
+        d = tmp_path / "medium.en"
+        d.mkdir()
+        (d / "model.bin").write_bytes(b"\x00")
+
+        manager = ModelManager(models_dir=tmp_path)
+        result = manager.resolve_model_name(preferred="medium.en")
+
+        assert result == "medium.en"
+
+    def test_ignores_invalid_dirs_during_fallback(self, tmp_path: Path) -> None:
+        # Directory without model.bin should be ignored
+        (tmp_path / "broken-model").mkdir()
+        (tmp_path / "broken-model" / "readme.txt").write_text("hi")
+
+        d = tmp_path / "tiny.en"
+        d.mkdir()
+        (d / "model.bin").write_bytes(b"\x00")
+
+        manager = ModelManager(models_dir=tmp_path)
+        result = manager.resolve_model_name()
+
+        assert result == "tiny.en"

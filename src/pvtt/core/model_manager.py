@@ -17,6 +17,8 @@ from pvtt.util.types import ModelInfo
 
 logger = get_logger(__name__)
 
+PREFERRED_MODEL = "large-v3-turbo"
+
 MODEL_REPO_MAP: dict[str, str] = {
     "tiny": "Systran/faster-whisper-tiny",
     "tiny.en": "Systran/faster-whisper-tiny.en",
@@ -174,6 +176,41 @@ class ModelManager:
             name=model_name,
             path=model_path,
             size_bytes=size,
+        )
+
+    def resolve_model_name(self, preferred: str = PREFERRED_MODEL) -> str:
+        """Resolve 'auto' to the best locally installed model.
+
+        Selection logic:
+        1. If the preferred model (large-v3-turbo) is installed, use it.
+        2. Otherwise, use the first installed model found.
+        3. If no models are installed, raise ModelNotFoundError.
+
+        Args:
+            preferred: Preferred model name to check first.
+
+        Returns:
+            Name of the selected model.
+
+        Raises:
+            ModelNotFoundError: If no models are installed.
+        """
+        # Check preferred model first
+        local_name = preferred.replace("/", "--")
+        preferred_dir = self._models_dir / local_name
+        if preferred_dir.is_dir() and self._is_valid_model_dir(preferred_dir):
+            logger.info("Auto-selected preferred model: %s", preferred)
+            return preferred
+
+        # Fall back to first available model
+        models = self.list_models()
+        if models:
+            selected = models[0].name
+            logger.info("Auto-selected first available model: %s", selected)
+            return selected
+
+        raise ModelNotFoundError(
+            "No models installed. Download one with: pvtt model download large-v3-turbo"
         )
 
     @staticmethod

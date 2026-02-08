@@ -41,12 +41,23 @@ class Transcriber:
         self._model_manager = model_manager or ModelManager()
 
     def _ensure_model_loaded(self) -> None:
-        """Load the configured model if not already loaded."""
+        """Load the configured model if not already loaded.
+
+        If model name is 'auto', resolves to the best installed model
+        (prefers large-v3-turbo, falls back to first available).
+        """
         if self._engine.is_loaded:
             return
 
         model_cfg = self._config.model
-        model_path = self._model_manager.get_model_path(model_cfg.name)
+
+        # Resolve 'auto' to the best available installed model
+        model_name = model_cfg.name
+        if model_name == "auto":
+            model_name = self._model_manager.resolve_model_name()
+            logger.info("Auto-resolved model: %s", model_name)
+
+        model_path = self._model_manager.get_model_path(model_name)
 
         device, compute_type = resolve_device_and_compute(
             model_cfg.device,
@@ -55,7 +66,7 @@ class Transcriber:
 
         logger.info(
             "Loading model %s on %s (%s)",
-            model_cfg.name,
+            model_name,
             device,
             compute_type,
         )

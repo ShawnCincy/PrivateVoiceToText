@@ -106,3 +106,40 @@ class TestTranscriber:
         output = transcriber.format_output(result, format_name="text")
 
         assert output == "Test."
+
+    def test_auto_model_resolves_via_model_manager(
+        self, mock_engine: MagicMock, tmp_path: Path
+    ) -> None:
+        audio_file = tmp_path / "test.wav"
+        audio_file.write_bytes(b"RIFF" + b"\x00" * 100)
+
+        cfg = PvttConfig.model_validate({
+            "model": {"name": "auto", "device": "cpu", "compute_type": "int8"},
+        })
+        model_manager = MagicMock()
+        model_manager.resolve_model_name.return_value = "tiny.en"
+        model_manager.get_model_path.return_value = tmp_path / "models" / "tiny.en"
+
+        transcriber = Transcriber(config=cfg, engine=mock_engine, model_manager=model_manager)
+        transcriber.transcribe_file(audio_file)
+
+        model_manager.resolve_model_name.assert_called_once()
+        model_manager.get_model_path.assert_called_once_with("tiny.en")
+
+    def test_explicit_model_does_not_call_resolve(
+        self, mock_engine: MagicMock, tmp_path: Path
+    ) -> None:
+        audio_file = tmp_path / "test.wav"
+        audio_file.write_bytes(b"RIFF" + b"\x00" * 100)
+
+        cfg = PvttConfig.model_validate({
+            "model": {"name": "tiny.en", "device": "cpu", "compute_type": "int8"},
+        })
+        model_manager = MagicMock()
+        model_manager.get_model_path.return_value = tmp_path / "models" / "tiny.en"
+
+        transcriber = Transcriber(config=cfg, engine=mock_engine, model_manager=model_manager)
+        transcriber.transcribe_file(audio_file)
+
+        model_manager.resolve_model_name.assert_not_called()
+        model_manager.get_model_path.assert_called_once_with("tiny.en")

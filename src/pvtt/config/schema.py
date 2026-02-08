@@ -30,8 +30,11 @@ class ModelConfig(BaseModel):
     """Configuration for model selection and inference."""
 
     name: str = Field(
-        default="large-v3-turbo",
-        description="Whisper model name or HuggingFace repo ID",
+        default="auto",
+        description=(
+            "Whisper model name, HuggingFace repo ID, or 'auto' to select "
+            "the best installed model (prefers large-v3-turbo)"
+        ),
     )
     device: Literal["auto", "cuda", "cpu"] = "auto"
     compute_type: Literal[
@@ -51,12 +54,12 @@ class ModelConfig(BaseModel):
     @field_validator("name")
     @classmethod
     def validate_model_name(cls, v: str) -> str:
-        """Accept known model names and HuggingFace repo IDs."""
-        if v in KNOWN_MODELS or "/" in v:
+        """Accept 'auto', known model names, and HuggingFace repo IDs."""
+        if v == "auto" or v in KNOWN_MODELS or "/" in v:
             return v
         raise ValueError(
             f"Unknown model: {v!r}. "
-            f"Known models: {', '.join(sorted(KNOWN_MODELS))}"
+            f"Known models: auto, {', '.join(sorted(KNOWN_MODELS))}"
         )
 
 
