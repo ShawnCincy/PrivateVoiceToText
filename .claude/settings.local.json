@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "MultiEdit",
+      "Read",
+      "Write",
+      "Bash",
+      "WebFetch(*)",
+      "WebFetch(domain:python-sounddevice.readthedocs.io)",
+      "WebFetch(domain:pypi.org)"
+    ]
+  }
+}
