@@ -60,3 +60,21 @@ class TestCLIApp:
 
         # Should succeed even with no models
         assert result.exit_code == 0
+
+    def test_help_shows_doctor(self) -> None:
+        result = runner.invoke(app, ["--help"])
+
+        assert result.exit_code == 0
+        assert "doctor" in result.stdout
+
+    def test_transcribe_help_shows_live(self) -> None:
+        result = runner.invoke(app, ["transcribe", "--help"])
+
+        assert result.exit_code == 0
+        assert "live" in result.stdout
+
+    def test_config_help_shows_set(self) -> None:
+        result = runner.invoke(app, ["config", "--help"])
+
+        assert result.exit_code == 0
+        assert "set" in result.stdout

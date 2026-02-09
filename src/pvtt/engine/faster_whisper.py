@@ -9,6 +9,9 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+import numpy.typing as npt
+
 from pvtt.exceptions import EngineError, ModelNotFoundError
 from pvtt.util.logging import get_logger
 from pvtt.util.types import TranscribeOptions, TranscriptionSegment
@@ -104,6 +107,57 @@ class FasterWhisperEngine:
 
             segments_iter, _info = self._model.transcribe(
                 str(audio),
+                language=options.language,
+                beam_size=options.beam_size,
+                temperature=temperature,
+                initial_prompt=options.initial_prompt,
+                vad_filter=options.vad_filter,
+                word_timestamps=options.word_timestamps,
+            )
+
+            for seg in segments_iter:
+                yield TranscriptionSegment(
+                    start=seg.start,
+                    end=seg.end,
+                    text=seg.text,
+                    avg_logprob=seg.avg_logprob,
+                    no_speech_prob=seg.no_speech_prob,
+                )
+        except EngineError:
+            raise
+        except Exception as exc:
+            raise EngineError(f"Transcription failed: {exc}") from exc
+
+    def transcribe_audio(
+        self,
+        audio: npt.NDArray[np.float32],
+        options: TranscribeOptions,
+    ) -> Iterator[TranscriptionSegment]:
+        """Transcribe raw audio data using Faster-Whisper.
+
+        Faster-Whisper natively accepts numpy arrays, so this passes
+        the audio directly without writing to a temporary file.
+
+        Args:
+            audio: Mono float32 audio at 16 kHz.
+            options: Transcription parameters.
+
+        Yields:
+            TranscriptionSegment for each detected segment.
+
+        Raises:
+            EngineError: If no model is loaded or transcription fails.
+        """
+        if self._model is None:
+            raise EngineError("No model loaded. Call load_model() first.")
+
+        try:
+            temperature = options.temperature
+            if isinstance(temperature, (int, float)):
+                temperature = [temperature]
+
+            segments_iter, _info = self._model.transcribe(
+                audio,
                 language=options.language,
                 beam_size=options.beam_size,
                 temperature=temperature,

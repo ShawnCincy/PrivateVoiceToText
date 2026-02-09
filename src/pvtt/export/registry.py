@@ -52,9 +52,15 @@ def list_formats() -> list[str]:
 
 def _register_builtins() -> None:
     """Register built-in exporters."""
+    from pvtt.export.json_export import JsonExporter
     from pvtt.export.plain_text import PlainTextExporter
+    from pvtt.export.srt import SrtExporter
+    from pvtt.export.vtt import VttExporter
 
     register_exporter("text", PlainTextExporter)
+    register_exporter("srt", SrtExporter)
+    register_exporter("vtt", VttExporter)
+    register_exporter("json", JsonExporter)
 
 
 _register_builtins()

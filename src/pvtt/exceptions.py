@@ -31,9 +31,17 @@ class AudioError(PvttError):
     """Audio file reading or processing error."""
 
 
+class AudioCaptureError(AudioError):
+    """Audio capture (microphone) error."""
+
+
 class ExportError(PvttError):
     """Output formatting/export error."""
 
 
 class HardwareError(PvttError):
     """Hardware detection or capability error."""
+
+
+class StreamingError(PvttError):
+    """Streaming pipeline error."""

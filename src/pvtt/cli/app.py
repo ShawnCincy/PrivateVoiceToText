@@ -38,6 +38,14 @@ app.add_typer(model_app, name="model", help="Model management commands")
 app.add_typer(config_app, name="config", help="Configuration commands")
 
 
+@app.command("doctor")
+def doctor() -> None:
+    """Run system diagnostics and check pvtt readiness."""
+    from pvtt.cli.doctor import doctor_command
+
+    doctor_command()
+
+
 def main() -> None:
     """Entry point for the pvtt CLI."""
     try:

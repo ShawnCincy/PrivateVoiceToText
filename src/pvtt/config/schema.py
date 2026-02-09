@@ -89,6 +89,39 @@ class LoggingConfig(BaseModel):
     verbosity: int = Field(default=0, ge=0, le=2)
 
 
+class StreamingConfig(BaseModel):
+    """Configuration for live streaming transcription."""
+
+    vad_threshold: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Speech probability threshold for VAD (0.0-1.0)",
+    )
+    min_silence_duration_ms: int = Field(
+        default=500,
+        ge=100,
+        le=5000,
+        description="Minimum silence duration (ms) to split speech segments",
+    )
+    min_speech_duration_ms: int = Field(
+        default=250,
+        ge=0,
+        le=5000,
+        description="Minimum speech duration (ms) to accept a segment",
+    )
+    max_speech_duration_s: float = Field(
+        default=30.0,
+        ge=1.0,
+        le=120.0,
+        description="Maximum speech duration (s) before forced split",
+    )
+    audio_device: int | None = Field(
+        default=None,
+        description="Audio input device index (None for system default)",
+    )
+
+
 class PvttConfig(BaseModel):
     """Root configuration model.
 
@@ -100,3 +133,4 @@ class PvttConfig(BaseModel):
     transcription: TranscriptionConfig = Field(default_factory=TranscriptionConfig)
     output: OutputConfig = Field(default_factory=OutputConfig)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
+    streaming: StreamingConfig = Field(default_factory=StreamingConfig)

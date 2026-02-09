@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from pvtt.exceptions import (
+    AudioCaptureError,
     AudioError,
     ConfigError,
     EngineError,
@@ -14,6 +15,7 @@ from pvtt.exceptions import (
     ModelDownloadError,
     ModelNotFoundError,
     PvttError,
+    StreamingError,
 )
 
 
@@ -29,8 +31,10 @@ class TestExceptionHierarchy:
             EngineError,
             EngineNotFoundError,
             AudioError,
+            AudioCaptureError,
             ExportError,
             HardwareError,
+            StreamingError,
         ],
     )
     def test_inherits_from_pvtt_error(
@@ -45,6 +49,12 @@ class TestExceptionHierarchy:
         exc = EngineNotFoundError("missing")
 
         assert isinstance(exc, EngineError)
+        assert isinstance(exc, PvttError)
+
+    def test_audio_capture_error_inherits_from_audio_error(self) -> None:
+        exc = AudioCaptureError("no mic")
+
+        assert isinstance(exc, AudioError)
         assert isinstance(exc, PvttError)
 
     def test_pvtt_error_is_exception(self) -> None:

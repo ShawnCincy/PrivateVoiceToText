@@ -22,10 +22,31 @@ class TestExportRegistry:
         with pytest.raises(ExportError, match="Unknown output format"):
             get_exporter("csv")
 
-    def test_list_formats_includes_text(self) -> None:
+    def test_srt_format_registered(self) -> None:
+        exporter = get_exporter("srt")
+
+        assert isinstance(exporter, Exporter)
+        assert exporter.format_name == "srt"
+
+    def test_vtt_format_registered(self) -> None:
+        exporter = get_exporter("vtt")
+
+        assert isinstance(exporter, Exporter)
+        assert exporter.format_name == "vtt"
+
+    def test_json_format_registered(self) -> None:
+        exporter = get_exporter("json")
+
+        assert isinstance(exporter, Exporter)
+        assert exporter.format_name == "json"
+
+    def test_list_formats_includes_all_builtins(self) -> None:
         formats = list_formats()
 
         assert "text" in formats
+        assert "srt" in formats
+        assert "vtt" in formats
+        assert "json" in formats
 
     def test_register_custom_exporter(self) -> None:
         class DummyExporter:

@@ -1,0 +1,7 @@
+WARNING: Ignoring invalid distribution ~ip (C:\Python311\Lib\site-packages)
+Collecting tomli-w
+  Downloading tomli_w-1.2.0-py3-none-any.whl.metadata (5.7 kB)
+Downloading tomli_w-1.2.0-py3-none-any.whl (6.7 kB)
+WARNING: Ignoring invalid distribution ~ip (C:\Python311\Lib\site-packages)
+Installing collected packages: tomli-w
+Successfully installed tomli-w-1.2.0

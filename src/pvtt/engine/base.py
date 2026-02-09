@@ -10,6 +10,9 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
+import numpy as np
+import numpy.typing as npt
+
 from pvtt.util.types import TranscribeOptions, TranscriptionSegment
 
 
@@ -48,6 +51,28 @@ class InferenceEngine(Protocol):
 
         Args:
             audio: Path to audio file.
+            options: Transcription parameters.
+
+        Yields:
+            TranscriptionSegment for each detected segment.
+
+        Raises:
+            EngineError: If transcription fails.
+        """
+        ...
+
+    def transcribe_audio(
+        self,
+        audio: npt.NDArray[np.float32],
+        options: TranscribeOptions,
+    ) -> Iterator[TranscriptionSegment]:
+        """Transcribe raw audio data (numpy array).
+
+        Used by the streaming pipeline for real-time transcription.
+        The audio should be mono float32 at 16 kHz.
+
+        Args:
+            audio: Audio samples as float32 numpy array.
             options: Transcription parameters.
 
         Yields:

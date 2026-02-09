@@ -5,6 +5,9 @@ from __future__ import annotations
 from collections.abc import Iterator
 from pathlib import Path
 
+import numpy as np
+import numpy.typing as npt
+
 from pvtt.engine.base import InferenceEngine
 from pvtt.util.types import TranscribeOptions, TranscriptionSegment
 
@@ -25,6 +28,13 @@ class _ValidEngine:
     def transcribe(
         self,
         audio: Path | str,
+        options: TranscribeOptions,
+    ) -> Iterator[TranscriptionSegment]:
+        yield TranscriptionSegment(start=0.0, end=1.0, text="test")
+
+    def transcribe_audio(
+        self,
+        audio: npt.NDArray[np.float32],
         options: TranscribeOptions,
     ) -> Iterator[TranscriptionSegment]:
         yield TranscriptionSegment(start=0.0, end=1.0, text="test")

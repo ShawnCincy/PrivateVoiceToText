@@ -10,6 +10,7 @@ from pvtt.config.schema import (
     ModelConfig,
     OutputConfig,
     PvttConfig,
+    StreamingConfig,
     TranscriptionConfig,
 )
 
@@ -115,6 +116,45 @@ class TestLoggingConfig:
             LoggingConfig(verbosity=3)
 
 
+class TestStreamingConfig:
+    """Tests for StreamingConfig."""
+
+    def test_defaults(self) -> None:
+        config = StreamingConfig()
+
+        assert config.vad_threshold == 0.5
+        assert config.min_silence_duration_ms == 500
+        assert config.min_speech_duration_ms == 250
+        assert config.max_speech_duration_s == 30.0
+        assert config.audio_device is None
+
+    def test_vad_threshold_bounds(self) -> None:
+        with pytest.raises(ValidationError):
+            StreamingConfig(vad_threshold=-0.1)
+
+        with pytest.raises(ValidationError):
+            StreamingConfig(vad_threshold=1.1)
+
+    def test_min_silence_duration_bounds(self) -> None:
+        with pytest.raises(ValidationError):
+            StreamingConfig(min_silence_duration_ms=50)
+
+        with pytest.raises(ValidationError):
+            StreamingConfig(min_silence_duration_ms=6000)
+
+    def test_max_speech_duration_bounds(self) -> None:
+        with pytest.raises(ValidationError):
+            StreamingConfig(max_speech_duration_s=0.5)
+
+        with pytest.raises(ValidationError):
+            StreamingConfig(max_speech_duration_s=121.0)
+
+    def test_audio_device_accepts_int(self) -> None:
+        config = StreamingConfig(audio_device=2)
+
+        assert config.audio_device == 2
+
+
 class TestPvttConfig:
     """Tests for the root PvttConfig."""
 
@@ -125,6 +165,7 @@ class TestPvttConfig:
         assert config.transcription.beam_size == 5
         assert config.output.format == "text"
         assert config.logging.verbosity == 0
+        assert config.streaming.vad_threshold == 0.5
 
     def test_privacy_default(self) -> None:
         config = PvttConfig()
